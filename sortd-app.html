@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>Sortd</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0E1117;--surface:#1C2030;--surface2:#242838;
+  --text:#FFFFFF;--text2:rgba(255,255,255,0.6);--text3:rgba(255,255,255,0.32);
+  --teal:#4FB3C8;--teal-dk:#3A96AB;--accent:#FF6B47;--yellow:#FFD23F;
+  --green:#2ECC71;--red:#E74C3C;--radius:16px;
+  --display:'Libre Baskerville',serif;--body:'Inter',sans-serif;
+}
+html,body{background:#111;display:flex;justify-content:center;font-family:var(--body);-webkit-font-smoothing:antialiased;}
+.phone{width:100%;max-width:430px;min-height:100vh;background:var(--bg);overflow-x:hidden;padding-bottom:120px;}
+.screen{display:none;}
+.screen.active{display:block;}
+
+/* ── AUTH SCREEN ── */
+.auth-screen{min-height:100vh;display:flex;flex-direction:column;padding:60px 28px 40px;}
+.auth-logo{font-family:var(--display);font-size:36px;font-weight:700;color:var(--text);margin-bottom:6px;}
+.auth-tagline{font-size:14px;color:var(--text2);margin-bottom:48px;line-height:1.5;}
+.auth-tabs{display:flex;gap:0;background:var(--surface);border-radius:12px;padding:4px;margin-bottom:32px;}
+.auth-tab{flex:1;padding:10px;text-align:center;font-size:14px;font-weight:600;color:var(--text2);border-radius:9px;cursor:pointer;transition:all 0.2s;}
+.auth-tab.active{background:var(--bg);color:var(--text);}
+.auth-field{margin-bottom:16px;}
+.auth-label{font-size:12px;font-weight:600;color:var(--text3);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:8px;display:block;}
+.auth-input{width:100%;background:var(--surface);border:1.5px solid rgba(255,255,255,0.07);border-radius:12px;padding:14px 16px;font-family:var(--body);font-size:15px;color:var(--text);outline:none;transition:border-color 0.15s;}
+.auth-input:focus{border-color:var(--teal);}
+.auth-input::placeholder{color:var(--text3);}
+.auth-btn{width:100%;background:var(--teal-dk);color:#fff;border:none;border-radius:50px;padding:16px;font-family:var(--body);font-size:16px;font-weight:700;cursor:pointer;margin-top:8px;transition:opacity 0.15s;}
+.auth-btn:active{opacity:0.82;}
+.auth-btn:disabled{opacity:0.5;cursor:not-allowed;}
+.auth-error{font-size:13px;color:#FF6B6B;margin-top:12px;text-align:center;min-height:20px;}
+.auth-divider{display:flex;align-items:center;gap:12px;margin:24px 0;}
+.auth-divider-line{flex:1;height:1px;background:rgba(255,255,255,0.08);}
+.auth-divider-text{font-size:12px;color:var(--text3);}
+
+/* ── HERO ── */
+.hero{position:relative;width:100%;height:260px;overflow:hidden;display:flex;align-items:flex-end;
+  background:linear-gradient(135deg,#B03020 0%,#D4654A 35%,#C48090 65%,#A0B8D0 100%);}
+.hero-curve{position:absolute;bottom:-2px;left:0;right:0;height:44px;background:var(--bg);border-radius:44px 44px 0 0;}
+.hero-cal{position:absolute;left:50%;transform:translateX(-50%);top:46px;width:110px;height:136px;}
+.cal-rings{position:absolute;top:-16px;left:0;right:0;display:flex;justify-content:center;gap:9px;}
+.ring{width:11px;height:28px;border:3px solid rgba(0,0,0,0.6);border-radius:6px;background:transparent;}
+.cal-body{width:110px;height:112px;background:#7ECFC0;border-radius:12px;position:absolute;bottom:0;overflow:hidden;}
+.cal-top{position:absolute;top:0;left:0;right:0;height:24px;background:#E74C3C;}
+.cal-num{font-size:52px;font-weight:700;color:rgba(255,255,255,0.25);position:absolute;bottom:4px;left:50%;transform:translateX(-50%);line-height:1;font-family:var(--display);}
+.cal-grid{position:absolute;bottom:8px;left:7px;right:7px;display:grid;grid-template-columns:repeat(5,1fr);gap:4px;}
+.cg{width:100%;aspect-ratio:1;background:rgba(255,255,255,0.18);border-radius:2px;}
+.sparkle{position:absolute;color:#fff;font-size:20px;opacity:0.85;line-height:1;user-select:none;}
+.fi{position:absolute;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:22px;}
+.user-avatar{position:absolute;top:54px;right:20px;width:36px;height:36px;background:var(--teal-dk);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;cursor:pointer;}
+
+/* ── BODY ── */
+.body{padding:0 20px;}
+.app-title{font-size:32px;font-weight:700;color:var(--text);margin:18px 0 4px;letter-spacing:-0.5px;font-family:var(--display);}
+.app-greeting{font-size:14px;color:var(--text2);margin-bottom:20px;}
+.app-desc{font-size:15px;color:var(--text2);line-height:1.65;margin-bottom:26px;}
+.search-wrap{margin-bottom:26px;}
+.search-box{display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:14px;padding:0 16px;border:1px solid rgba(255,255,255,0.06);}
+.search-box input{flex:1;border:none;outline:none;background:transparent;font-family:var(--body);font-size:15px;color:var(--text);padding:14px 0;}
+.search-box input::placeholder{color:var(--text3);}
+.s-icon{font-size:15px;color:var(--text3);}
+.sec-label{font-size:11px;font-weight:700;letter-spacing:0.09em;color:var(--text3);text-transform:uppercase;margin-bottom:14px;}
+.how-scroll{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;margin:0 -20px;padding:0 20px 4px;}
+.how-scroll::-webkit-scrollbar{display:none;}
+.how-card{flex-shrink:0;width:154px;background:var(--surface);border-radius:var(--radius);padding:16px;border:1px solid rgba(255,255,255,0.05);}
+.how-icon{font-size:34px;margin-bottom:12px;display:block;}
+.how-text{font-size:13px;font-weight:600;color:var(--text);line-height:1.45;}
+.divider{height:1px;background:rgba(255,255,255,0.06);margin:28px 0;}
+.cat-filter{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -20px 18px;padding:0 20px;}
+.cat-filter::-webkit-scrollbar{display:none;}
+.cfpill{flex-shrink:0;padding:7px 16px;border-radius:30px;font-size:13px;font-weight:500;background:var(--surface);color:var(--text2);border:1px solid rgba(255,255,255,0.06);cursor:pointer;white-space:nowrap;transition:all 0.15s;}
+.cfpill.active{background:#fff;color:#000;border-color:#fff;}
+.cat-rows{display:flex;flex-direction:column;gap:8px;}
+.cat-row{background:var(--surface);border-radius:var(--radius);padding:18px;display:flex;align-items:center;gap:14px;cursor:pointer;border:1px solid rgba(255,255,255,0.05);transition:background 0.15s;}
+.cat-row:active{background:var(--surface2);}
+.cat-row-info{flex:1;min-width:0;}
+.cat-row-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:4px;font-family:var(--display);}
+.cat-row-sub{font-size:13px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.icon-stack{display:flex;flex-direction:row;flex-shrink:0;}
+.stack-icon{width:36px;height:36px;border-radius:10px;border:2.5px solid var(--surface);display:flex;align-items:center;justify-content:center;font-size:17px;margin-left:-10px;flex-shrink:0;}
+.stack-icon:first-child{margin-left:0;}
+.see-all-link{display:block;text-align:center;font-size:14px;font-weight:600;color:var(--teal);margin-top:16px;cursor:pointer;padding:12px;}
+
+/* ── CTA ── */
+.cta-wrap{padding:16px 20px 20px;position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:linear-gradient(to top,var(--bg) 65%,transparent);padding-top:24px;z-index:100;}
+.cta-btn{width:100%;background:var(--teal-dk);color:#fff;border:none;border-radius:50px;padding:17px 24px;font-family:var(--body);font-size:16px;font-weight:700;cursor:pointer;transition:opacity 0.15s;}
+.cta-btn:active{opacity:0.82;}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--surface);border-top:1px solid rgba(255,255,255,0.06);display:flex;padding:10px 10px 24px;z-index:200;}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:6px;}
+.nav-icon{font-size:20px;opacity:0.32;}
+.nav-label{font-size:10px;color:var(--text2);font-weight:500;opacity:0.38;}
+.nav-dot{width:4px;height:4px;border-radius:50%;background:var(--teal);display:none;margin:0 auto;}
+.nav-item.active .nav-icon{opacity:1;}
+.nav-item.active .nav-label{color:#fff;opacity:1;font-weight:700;}
+.nav-item.active .nav-dot{display:block;}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:95px;left:50%;transform:translateX(-50%) translateY(12px);background:rgba(255,255,255,0.1);backdrop-filter:blur(12px);color:#fff;padding:10px 20px;border-radius:30px;font-size:13px;font-weight:500;opacity:0;pointer-events:none;transition:all 0.25s ease;z-index:500;white-space:nowrap;border:1px solid rgba(255,255,255,0.1);}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ── DETAIL ── */
+.detail-header{padding:54px 20px 18px;display:flex;align-items:center;gap:14px;}
+.detail-back{width:36px;height:36px;border-radius:50%;background:var(--surface);border:none;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.detail-title{font-size:22px;font-weight:700;color:var(--text);font-family:var(--display);}
+.svc-list{padding:0 20px;display:flex;flex-direction:column;gap:8px;}
+.svc-card{background:var(--surface);border-radius:var(--radius);padding:14px 16px;display:flex;align-items:center;gap:14px;border:1px solid rgba(255,255,255,0.05);cursor:pointer;transition:background 0.15s;}
+.svc-card:active{background:var(--surface2);}
+.svc-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.svc-info{flex:1;min-width:0;}
+.svc-name{font-size:15px;font-weight:700;color:var(--text);margin-bottom:3px;font-family:var(--display);}
+.svc-sub{font-size:13px;color:var(--text2);}
+.svc-right{display:flex;flex-direction:column;align-items:flex-end;gap:7px;}
+.svc-amt{font-size:16px;font-weight:700;color:var(--text);}
+.due-pill{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;}
+.d-soon{background:rgba(255,210,63,0.15);color:#FFD23F;}
+.d-ok{background:rgba(79,179,200,0.15);color:#4FB3C8;}
+.d-over{background:rgba(255,107,71,0.2);color:#FF6B47;}
+.fav-btn{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.07);border:none;color:var(--text2);font-size:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.fav-btn.on{background:rgba(255,107,71,0.15);color:#FF6B47;}
+
+/* ── CHECKOUT ── */
+.co-header{padding:54px 20px 0;display:flex;align-items:center;gap:14px;}
+.co-hero{display:flex;flex-direction:column;align-items:center;padding:24px 20px 20px;text-align:center;}
+.co-svc-icon{width:72px;height:72px;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:34px;margin-bottom:14px;}
+.co-svc-name{font-size:22px;font-weight:700;color:var(--text);margin-bottom:4px;font-family:var(--display);}
+.co-svc-sub{font-size:14px;color:var(--text2);}
+.co-body{padding:0 20px;}
+.co-section{margin-bottom:20px;}
+.co-label{font-size:11px;font-weight:700;letter-spacing:0.08em;color:var(--text3);text-transform:uppercase;margin-bottom:10px;}
+.amt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.amt-opt{background:var(--surface);border:1.5px solid rgba(255,255,255,0.07);border-radius:12px;padding:12px 8px;text-align:center;font-size:15px;font-weight:700;color:var(--text);cursor:pointer;transition:all 0.15s;}
+.amt-opt.selected{border-color:var(--teal);background:rgba(79,179,200,0.1);color:var(--teal);}
+.amt-sub{font-size:10px;font-weight:400;color:var(--text2);margin-top:2px;display:block;}
+.custom-amt-wrap{background:var(--surface);border-radius:12px;border:1.5px solid rgba(255,255,255,0.07);display:flex;align-items:center;gap:8px;padding:0 16px;margin-top:8px;}
+.custom-amt-wrap span{font-size:16px;font-weight:700;color:var(--text2);}
+.custom-amt-wrap input{flex:1;background:transparent;border:none;outline:none;font-family:var(--body);font-size:16px;font-weight:700;color:var(--text);padding:14px 0;}
+.custom-amt-wrap input::placeholder{color:var(--text3);}
+.co-input{width:100%;background:var(--surface);border:1.5px solid rgba(255,255,255,0.07);border-radius:12px;padding:14px 16px;font-family:var(--body);font-size:15px;color:var(--text);outline:none;}
+.co-input:focus{border-color:var(--teal);}
+.co-input::placeholder{color:var(--text3);}
+select.co-input{appearance:none;cursor:pointer;}
+.pay-methods{display:flex;flex-direction:column;gap:8px;}
+.pay-method{background:var(--surface);border-radius:12px;border:1.5px solid rgba(255,255,255,0.07);padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:border-color 0.15s;}
+.pay-method.selected{border-color:var(--teal);}
+.pm-icon{font-size:22px;width:36px;text-align:center;flex-shrink:0;}
+.pm-info{flex:1;}
+.pm-name{font-size:14px;font-weight:600;color:var(--text);}
+.pm-detail{font-size:12px;color:var(--text2);}
+.pm-radio{width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.pay-method.selected .pm-radio{border-color:var(--teal);}
+.pm-radio-dot{width:8px;height:8px;border-radius:50%;background:var(--teal);display:none;}
+.pay-method.selected .pm-radio-dot{display:block;}
+.summary-box{background:var(--surface);border-radius:14px;border:1px solid rgba(255,255,255,0.06);overflow:hidden;margin-bottom:20px;}
+.summary-row{display:flex;justify-content:space-between;align-items:center;padding:13px 16px;border-bottom:1px solid rgba(255,255,255,0.05);}
+.summary-row:last-child{border-bottom:none;}
+.summary-row-label{font-size:13px;color:var(--text2);}
+.summary-row-val{font-size:13px;font-weight:600;color:var(--text);}
+.summary-row.total .summary-row-label{font-size:15px;font-weight:700;color:var(--text);}
+.summary-row.total .summary-row-val{font-size:15px;font-weight:700;color:var(--teal);}
+.pay-btn{width:100%;background:var(--teal-dk);color:#fff;border:none;border-radius:50px;padding:17px 24px;font-family:var(--body);font-size:16px;font-weight:700;cursor:pointer;transition:opacity 0.15s;margin-bottom:12px;}
+.pay-btn:disabled{opacity:0.5;cursor:not-allowed;}
+.pay-btn:active{opacity:0.82;}
+.secure-note{text-align:center;font-size:12px;color:var(--text3);}
+
+/* ── SUCCESS ── */
+.success-screen{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;min-height:100vh;padding:80px 24px 40px;text-align:center;}
+.success-ring{width:100px;height:100px;border-radius:50%;background:rgba(46,204,113,0.15);border:3px solid rgba(46,204,113,0.4);display:flex;align-items:center;justify-content:center;margin-bottom:24px;animation:popIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both;}
+@keyframes popIn{from{transform:scale(0);opacity:0;}to{transform:scale(1);opacity:1;}}
+.success-tick{font-size:44px;}
+.success-title{font-size:26px;font-weight:700;color:var(--text);margin-bottom:8px;font-family:var(--display);}
+.success-sub{font-size:15px;color:var(--text2);line-height:1.6;margin-bottom:32px;}
+.receipt-box{width:100%;background:var(--surface);border-radius:16px;border:1px solid rgba(255,255,255,0.06);overflow:hidden;margin-bottom:28px;text-align:left;}
+.receipt-header{padding:16px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(255,255,255,0.06);}
+.receipt-svc-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.receipt-svc-name{font-size:15px;font-weight:700;color:var(--text);font-family:var(--display);}
+.receipt-svc-sub{font-size:12px;color:var(--text2);}
+.receipt-row{display:flex;justify-content:space-between;padding:11px 18px;border-bottom:1px solid rgba(255,255,255,0.04);}
+.receipt-row:last-child{border-bottom:none;}
+.receipt-key{font-size:13px;color:var(--text2);}
+.receipt-val{font-size:13px;font-weight:600;color:var(--text);}
+.receipt-val.green{color:var(--green);}
+.success-actions{display:flex;gap:10px;width:100%;}
+.sa-btn{flex:1;padding:14px;border-radius:50px;font-family:var(--body);font-size:14px;font-weight:700;cursor:pointer;transition:opacity 0.15s;border:none;}
+.sa-btn.primary{background:var(--teal-dk);color:#fff;}
+.sa-btn.secondary{background:var(--surface);color:var(--text);border:1px solid rgba(255,255,255,0.1);}
+
+/* ── HISTORY ── */
+.hist-empty{padding:60px 20px;text-align:center;color:var(--text2);font-size:14px;line-height:1.6;}
+.hist-card{background:var(--surface);border-radius:var(--radius);padding:14px 16px;display:flex;align-items:center;gap:14px;border:1px solid rgba(255,255,255,0.05);margin-bottom:8px;}
+.hist-icon{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.hist-info{flex:1;}
+.hist-name{font-size:14px;font-weight:700;color:var(--text);font-family:var(--display);}
+.hist-date{font-size:12px;color:var(--text2);margin-top:2px;}
+.hist-amt{font-size:15px;font-weight:700;color:var(--text);}
+.hist-status{font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;background:rgba(46,204,113,0.15);color:#2ECC71;margin-top:4px;display:inline-block;}
+
+/* ── PROFILE ── */
+.profile-screen{padding:54px 20px 40px;}
+.profile-avatar{width:72px;height:72px;border-radius:50%;background:var(--teal-dk);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#fff;margin:0 auto 16px;}
+.profile-name{font-size:22px;font-weight:700;color:var(--text);text-align:center;font-family:var(--display);margin-bottom:4px;}
+.profile-email{font-size:14px;color:var(--text2);text-align:center;margin-bottom:32px;}
+.profile-section{margin-bottom:24px;}
+.profile-row{background:var(--surface);border-radius:var(--radius);padding:16px 18px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;border:1px solid rgba(255,255,255,0.05);cursor:pointer;}
+.profile-row-left{display:flex;align-items:center;gap:12px;}
+.profile-row-icon{font-size:20px;width:36px;text-align:center;}
+.profile-row-label{font-size:14px;font-weight:600;color:var(--text);}
+.profile-row-arrow{font-size:16px;color:var(--text3);}
+.signout-btn{width:100%;background:rgba(231,76,60,0.12);color:#E74C3C;border:1px solid rgba(231,76,60,0.2);border-radius:50px;padding:15px;font-family:var(--body);font-size:15px;font-weight:700;cursor:pointer;margin-top:8px;transition:opacity 0.15s;}
+.signout-btn:active{opacity:0.8;}
+
+/* ── SPINNER ── */
+.spinner{width:20px;height:20px;border:2px solid rgba(255,255,255,0.2);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block;vertical-align:middle;margin-right:8px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+<div class="phone">
+
+<!-- ═══ AUTH SCREEN ═══ -->
+<div class="screen active" id="authScreen">
+  <div class="auth-screen">
+    <div class="auth-logo">Sortd.</div>
+    <div class="auth-tagline">Your bills. Sorted in seconds.</div>
+
+    <div class="auth-tabs">
+      <div class="auth-tab active" id="tabLogin">Log in</div>
+      <div class="auth-tab" id="tabSignup">Sign up</div>
+    </div>
+
+    <div id="signupFields" style="display:none;">
+      <div class="auth-field">
+        <label class="auth-label">Full name</label>
+        <input class="auth-input" id="authName" type="text" placeholder="Oladapo Johnson"/>
+      </div>
+    </div>
+
+    <div class="auth-field">
+      <label class="auth-label">Email address</label>
+      <input class="auth-input" id="authEmail" type="email" placeholder="you@example.com"/>
+    </div>
+
+    <div class="auth-field">
+      <label class="auth-label">Password</label>
+      <input class="auth-input" id="authPassword" type="password" placeholder="••••••••"/>
+    </div>
+
+    <button class="auth-btn" id="authSubmitBtn">Log in</button>
+    <div class="auth-error" id="authError"></div>
+    <div style="text-align:center;margin-top:16px;font-size:14px;color:rgba(255,255,255,0.45);">
+      Don't have an account? <span id="switchToSignup" style="color:#4FB3C8;font-weight:600;cursor:pointer;">Sign up</span>
+    </div>
+    <div style="text-align:center;margin-top:8px;font-size:14px;color:rgba(255,255,255,0.45);display:none;" id="switchToLoginWrap">
+      Already have an account? <span id="switchToLogin" style="color:#4FB3C8;font-weight:600;cursor:pointer;">Log in</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ HOME SCREEN ═══ -->
+<div class="screen" id="homeScreen">
+  <div class="hero">
+    <div class="hero-cal">
+      <div class="cal-rings"><div class="ring"></div><div class="ring"></div><div class="ring"></div><div class="ring"></div><div class="ring"></div><div class="ring"></div><div class="ring"></div><div class="ring"></div></div>
+      <div class="cal-body">
+        <div class="cal-top"></div>
+        <div class="cal-num">1</div>
+        <div class="cal-grid"><div class="cg"></div><div class="cg"></div><div class="cg"></div><div class="cg"></div><div class="cg"></div><div class="cg"></div><div class="cg"></div><div class="cg"></div><div class="cg"></div><div class="cg"></div><div class="cg"></div><div class="cg"></div><div class="cg"></div><div class="cg"></div><div class="cg"></div></div>
+      </div>
+    </div>
+    <div class="fi" style="width:54px;height:54px;top:68px;left:46px;background:#2D1B6E;border-radius:16px;font-size:26px;">🐙</div>
+    <div class="fi" style="width:52px;height:52px;top:58px;right:52px;background:#fff;border-radius:14px;font-size:26px;">📺</div>
+    <div class="fi" style="width:46px;height:46px;bottom:62px;left:58px;background:#FFD700;border-radius:13px;font-size:22px;">⚡</div>
+    <div class="fi" style="width:40px;height:40px;top:108px;right:118px;background:#1DB954;border-radius:12px;font-size:20px;">🎵</div>
+    <span class="sparkle" style="top:88px;right:34px;">✦</span>
+    <span class="sparkle" style="top:148px;left:32px;font-size:13px;">✦</span>
+    <span class="sparkle" style="bottom:68px;right:82px;font-size:12px;">✦</span>
+    <div class="user-avatar" id="userAvatar" onclick="navTo('profile',document.querySelector('[data-nav=profile]'))">?</div>
+    <div class="hero-curve"></div>
+  </div>
+  <div class="body">
+    <div class="app-title">Sortd.</div>
+    <div class="app-greeting" id="appGreeting">Good to have you back.</div>
+    <div class="search-wrap">
+      <div class="search-box">
+        <span class="s-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Search bills & services…" oninput="handleSearch()"/>
+      </div>
+    </div>
+    <div class="sec-label">How it works</div>
+    <div class="how-scroll">
+      <div class="how-card"><span class="how-icon">🗓️</span><div class="how-text">Pay your bills from Sortd</div></div>
+      <div class="how-card"><span class="how-icon">📊</span><div class="how-text">Track every payment automatically</div></div>
+      <div class="how-card"><span class="how-icon">🔔</span><div class="how-text">Reminders before due dates</div></div>
+      <div class="how-card"><span class="how-icon">💰</span><div class="how-text">See what you spend each month</div></div>
+    </div>
+    <div class="divider"></div>
+    <div class="cat-filter" id="catFilter">
+      <div class="cfpill active" onclick="filterCat('All',this)">All</div>
+      <div class="cfpill" onclick="filterCat('Electricity',this)">⚡ Electricity</div>
+      <div class="cfpill" onclick="filterCat('Streaming',this)">📺 TV & Streaming</div>
+      <div class="cfpill" onclick="filterCat('Airtime',this)">📱 Airtime & Data</div>
+      <div class="cfpill" onclick="filterCat('Gaming',this)">🎮 Gaming</div>
+      <div class="cfpill" onclick="filterCat('Broadband',this)">🌐 Broadband</div>
+      <div class="cfpill" onclick="filterCat('Health',this)">🏥 Health</div>
+      <div class="cfpill" onclick="filterCat('Insurance',this)">🛡️ Insurance</div>
+    </div>
+    <div class="sec-label" id="catLabel">Just some of the bills we cover</div>
+    <div class="cat-rows" id="catRows"></div>
+    <div class="see-all-link">See all 500+ included →</div>
+  </div>
+</div>
+
+<!-- ═══ CATEGORY DETAIL ═══ -->
+<div class="screen" id="detailScreen">
+  <div class="detail-header">
+    <button class="detail-back" onclick="showHome()">‹</button>
+    <div class="detail-title" id="detailTitle"></div>
+  </div>
+  <div class="svc-list" id="svcList"></div>
+</div>
+
+<!-- ═══ SAVED ═══ -->
+<div class="screen" id="savedScreen">
+  <div class="detail-header">
+    <button class="detail-back" onclick="showHome()">‹</button>
+    <div class="detail-title">Saved</div>
+  </div>
+  <div class="svc-list" id="savedList"></div>
+</div>
+
+<!-- ═══ CHECKOUT ═══ -->
+<div class="screen" id="checkoutScreen">
+  <div class="co-header">
+    <button class="detail-back" id="coBackBtn">‹</button>
+    <div class="detail-title">Pay bill</div>
+  </div>
+  <div class="co-hero">
+    <div class="co-svc-icon" id="coIcon"></div>
+    <div class="co-svc-name" id="coName"></div>
+    <div class="co-svc-sub" id="coSub"></div>
+  </div>
+  <div class="co-body" id="coBody"></div>
+</div>
+
+<!-- ═══ SUCCESS ═══ -->
+<div class="screen" id="successScreen">
+  <div class="success-screen">
+    <div class="success-ring"><div class="success-tick">✓</div></div>
+    <div class="success-title">Payment successful!</div>
+    <div class="success-sub" id="successSub">Your payment was processed successfully.</div>
+    <div class="receipt-box" id="receiptBox"></div>
+    <div class="success-actions">
+      <button class="sa-btn secondary" onclick="showHome()">Back to home</button>
+      <button class="sa-btn primary" onclick="navTo('history',document.querySelector('[data-nav=history]'))">View history</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ HISTORY ═══ -->
+<div class="screen" id="historyScreen">
+  <div class="detail-header">
+    <button class="detail-back" onclick="showHome()">‹</button>
+    <div class="detail-title">Payment history</div>
+  </div>
+  <div style="padding:0 20px;" id="historyList">
+    <div class="hist-empty">Loading your history…</div>
+  </div>
+</div>
+
+<!-- ═══ PROFILE ═══ -->
+<div class="screen" id="profileScreen">
+  <div class="profile-screen">
+    <div class="profile-avatar" id="profileAvatar">?</div>
+    <div class="profile-name" id="profileName">—</div>
+    <div class="profile-email" id="profileEmail">—</div>
+    <div class="profile-section">
+      <div class="sec-label">Account</div>
+      <div class="profile-row" onclick="showToast('Coming soon')">
+        <div class="profile-row-left"><span class="profile-row-icon">🔔</span><span class="profile-row-label">Notifications</span></div>
+        <span class="profile-row-arrow">›</span>
+      </div>
+      <div class="profile-row" onclick="showToast('Coming soon')">
+        <div class="profile-row-left"><span class="profile-row-icon">💳</span><span class="profile-row-label">Payment methods</span></div>
+        <span class="profile-row-arrow">›</span>
+      </div>
+      <div class="profile-row" onclick="showToast('Coming soon')">
+        <div class="profile-row-left"><span class="profile-row-icon">🔒</span><span class="profile-row-label">Security</span></div>
+        <span class="profile-row-arrow">›</span>
+      </div>
+    </div>
+    <button class="signout-btn" onclick="handleSignOut()">Sign out</button>
+  </div>
+</div>
+
+<!-- ═══ NAV ═══ -->
+<div class="bottom-nav" id="bottomNav" style="display:none;">
+  <div class="nav-item active" data-nav="home" onclick="navTo('home',this)"><div class="nav-icon">🏠</div><div class="nav-label">Home</div><div class="nav-dot"></div></div>
+  <div class="nav-item" data-nav="history" onclick="navTo('history',this)"><div class="nav-icon">🧾</div><div class="nav-label">History</div><div class="nav-dot"></div></div>
+  <div class="nav-item" data-nav="saved" onclick="navTo('saved',this)"><div class="nav-icon">❤️</div><div class="nav-label">Saved</div><div class="nav-dot"></div></div>
+  <div class="nav-item" data-nav="profile" onclick="navTo('profile',this)"><div class="nav-icon">👤</div><div class="nav-label">Profile</div><div class="nav-dot"></div></div>
+</div>
+
+<div class="cta-wrap" id="ctaWrap" style="display:none;">
+  <button class="cta-btn" onclick="showToast('🎉 You are already signed in to Sortd!')">You\'re all set with Sortd</button>
+</div>
+
+<div class="toast" id="toast"></div>
+</div>
+
+<!-- ═══ FIREBASE ═══ -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyADB9zb-aHyGbiaNQ1Fcmlx3nBbAz6Y5iY",
+  authDomain: "sortd-4f818.firebaseapp.com",
+  projectId: "sortd-4f818",
+  storageBucket: "sortd-4f818.firebasestorage.app",
+  messagingSenderId: "961802469436",
+  appId: "1:961802469436:web:d18d7b1ba727eba4018339"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+/* ── WIRE AUTH BUTTON LISTENERS ── */
+document.getElementById('tabLogin').addEventListener('click', () => switchTab('login'));
+document.getElementById('tabSignup').addEventListener('click', () => switchTab('signup'));
+document.getElementById('authSubmitBtn').addEventListener('click', handleAuth);
+document.getElementById('switchToSignup').addEventListener('click', () => switchTab('signup'));
+document.getElementById('switchToLogin').addEventListener('click', () => switchTab('login'));
+
+function switchTab(tab) {
+  const isLogin = tab === 'login';
+  document.getElementById('tabLogin').classList.toggle('active', isLogin);
+  document.getElementById('tabSignup').classList.toggle('active', !isLogin);
+  document.getElementById('signupFields').style.display = isLogin ? 'none' : 'block';
+  document.getElementById('authSubmitBtn').textContent = isLogin ? 'Log in' : 'Sign up';
+  document.getElementById('authError').textContent = '';
+  document.getElementById('switchToSignup').parentElement.style.display = isLogin ? 'block' : 'none';
+  document.getElementById('switchToLoginWrap').style.display = isLogin ? 'none' : 'block';
+}
+
+async function handleAuth() {
+  const btn = document.getElementById('authSubmitBtn');
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const errEl = document.getElementById('authError');
+  const isLogin = document.getElementById('tabLogin').classList.contains('active');
+  if (!email || !password) { errEl.textContent = 'Please fill in all fields.'; return; }
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>' + (isLogin ? 'Logging in…' : 'Creating account…');
+  errEl.textContent = '';
+  try {
+    if (isLogin) {
+      await signInWithEmailAndPassword(auth, email, password);
+    } else {
+      const name = document.getElementById('authName').value.trim();
+      if (!name) { errEl.textContent = 'Please enter your name.'; btn.disabled=false; btn.textContent='Sign up'; return; }
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      await updateProfile(cred.user, { displayName: name });
+    }
+  } catch (e) {
+    const msgs = {
+      'auth/invalid-email': 'Invalid email address.',
+      'auth/user-not-found': 'No account found with this email.',
+      'auth/wrong-password': 'Incorrect password.',
+      'auth/email-already-in-use': 'An account with this email already exists.',
+      'auth/weak-password': 'Password must be at least 6 characters.',
+      'auth/invalid-credential': 'Incorrect email or password.',
+    };
+    errEl.textContent = msgs[e.code] || 'Something went wrong. Please try again.';
+    btn.disabled = false;
+    btn.textContent = isLogin ? 'Log in' : 'Sign up';
+  }
+}
+
+/* ── AUTH STATE ── */
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    window._currentUser = user;
+    showApp(user);
+  } else {
+    window._currentUser = null;
+    showAuthScreen();
+  }
+});
+
+function showApp(user) {
+  const name = user.displayName || user.email.split('@')[0];
+  const initials = name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  document.getElementById('appGreeting').textContent = `${greeting}, ${name.split(' ')[0]}.`;
+  document.getElementById('userAvatar').textContent = initials;
+  document.getElementById('profileAvatar').textContent = initials;
+  document.getElementById('profileName').textContent = name;
+  document.getElementById('profileEmail').textContent = user.email;
+  document.getElementById('authScreen').classList.remove('active');
+  document.getElementById('homeScreen').classList.add('active');
+  document.getElementById('bottomNav').style.display = 'flex';
+  document.getElementById('ctaWrap').style.display = 'block';
+  window.renderRows(cats);
+}
+
+function showAuthScreen() {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('authScreen').classList.add('active');
+  document.getElementById('bottomNav').style.display = 'none';
+  document.getElementById('ctaWrap').style.display = 'none';
+}
+
+/* ── SIGN OUT ── */
+window.handleSignOut = async function() {
+  await signOut(auth);
+  window.showToast('Signed out successfully');
+};
+
+/* ── SAVE PAYMENT TO FIRESTORE ── */
+window.savePaymentToFirestore = async function(paymentData) {
+  if (!window._currentUser) return;
+  try {
+    await addDoc(collection(db, 'users', window._currentUser.uid, 'payments'), {
+      ...paymentData,
+      createdAt: serverTimestamp()
+    });
+  } catch(e) {
+    console.error('Failed to save payment:', e);
+  }
+};
+
+/* ── LOAD HISTORY FROM FIRESTORE ── */
+window.loadHistory = async function() {
+  const listEl = document.getElementById('historyList');
+  if (!window._currentUser) { listEl.innerHTML = '<div class="hist-empty">Please log in to view history.</div>'; return; }
+  listEl.innerHTML = '<div class="hist-empty">Loading…</div>';
+  try {
+    const q = query(collection(db, 'users', window._currentUser.uid, 'payments'), orderBy('createdAt', 'desc'));
+    const snap = await getDocs(q);
+    if (snap.empty) {
+      listEl.innerHTML = '<div class="hist-empty">No payments yet.<br/>Your history will appear here after your first payment.</div>';
+      return;
+    }
+    listEl.innerHTML = snap.docs.map(doc => {
+      const d = doc.data();
+      const date = d.createdAt?.toDate ? d.createdAt.toDate().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : 'Just now';
+      return `<div class="hist-card">
+        <div class="hist-icon" style="background:${d.svcBg||'#1C2030'};">${d.svcIcon||'💳'}</div>
+        <div class="hist-info">
+          <div class="hist-name">${d.svcName}</div>
+          <div class="hist-date">${date}</div>
+          <span class="hist-status">✓ Successful</span>
+        </div>
+        <div style="text-align:right;">
+          <div class="hist-amt">${d.amount}</div>
+          <div style="font-size:11px;color:var(--text2);margin-top:4px;">${d.ref}</div>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    listEl.innerHTML = '<div class="hist-empty">Could not load history.</div>';
+  }
+};
+
+/* ── APP DATA & LOGIC ── */
+const cats=[
+  {id:'electricity',name:'Electricity',sub:'EKEDC, Abuja AEDC, Ibadan IBEDC & more',icons:['⚡','💡','🔌'],bgs:['#2A2800','#1E2D10','#1A1A00'],
+   svcs:[
+    {id:1,name:'EKEDC',sub:'Lagos electricity',icon:'⚡',bg:'#2A2800',amt:'₦8,500',dt:'Due in 2 days',dc:'d-soon',catId:'electricity'},
+    {id:2,name:'Abuja AEDC',sub:'Abuja electricity',icon:'⚡',bg:'#1E2D10',amt:'₦6,800',dt:'Due in 3 days',dc:'d-soon',catId:'electricity'},
+    {id:3,name:'Ibadan IBEDC',sub:'Ibadan electricity',icon:'💡',bg:'#1A1A00',amt:'₦5,200',dt:'Due in 7 days',dc:'d-ok',catId:'electricity'},
+   ]},
+  {id:'streaming',name:'TV, Streaming & Music',sub:'Netflix, DSTV, Spotify, Showmax & more',icons:['📺','🎵','🎬'],bgs:['#301010','#103010','#101030'],
+   svcs:[
+    {id:4,name:'Netflix',sub:'Standard plan',icon:'📺',bg:'#301010',amt:'₦4,600',dt:'Due today',dc:'d-over',catId:'streaming'},
+    {id:5,name:'Spotify',sub:'Premium',icon:'🎵',bg:'#103010',amt:'₦2,100',dt:'Due in 7 days',dc:'d-ok',catId:'streaming'},
+    {id:6,name:'Showmax',sub:'Mobile plan',icon:'🎬',bg:'#101030',amt:'₦1,800',dt:'Due in 5 days',dc:'d-ok',catId:'streaming'},
+   ]},
+  {id:'airtime',name:'Airtime & Data',sub:'MTN, Airtel, Glo, 9mobile & more',icons:['📱','📶','💬'],bgs:['#30280A','#102830','#1A100A'],
+   svcs:[
+    {id:7,name:'MTN',sub:'Airtime & data bundles',icon:'📶',bg:'#30280A',amt:'₦5,000',dt:'Due in 1 day',dc:'d-soon',catId:'airtime'},
+    {id:8,name:'Airtel',sub:'Voice & data',icon:'📱',bg:'#102830',amt:'₦3,500',dt:'Due in 8 days',dc:'d-ok',catId:'airtime'},
+    {id:9,name:'Glo',sub:'Data bundle',icon:'💬',bg:'#1A100A',amt:'₦2,000',dt:'Due in 6 days',dc:'d-ok',catId:'airtime'},
+    {id:19,name:'9mobile',sub:'Monthly plan',icon:'📡',bg:'#0A1E0A',amt:'₦1,500',dt:'Due in 14 days',dc:'d-ok',catId:'airtime'},
+   ]},
+  {id:'gaming',name:'Gaming Vouchers',sub:'PlayStation, Xbox, Steam, Roblox & more',icons:['🎮','🕹️','👾'],bgs:['#0A1A35','#1A0A2E','#0E1F0E'],
+   svcs:[
+    {id:14,name:'PlayStation Store',sub:'PS5 wallet top-up',icon:'🎮',bg:'#0A1A35',amt:'₦10,000',dt:'Due in 5 days',dc:'d-ok',catId:'gaming'},
+    {id:15,name:'Xbox Game Pass',sub:'Ultimate monthly',icon:'🕹️',bg:'#0E1F0E',amt:'₦6,500',dt:'Due in 2 days',dc:'d-soon',catId:'gaming'},
+    {id:16,name:'Steam Wallet',sub:'PC gaming credit',icon:'🖥️',bg:'#1A1A2E',amt:'₦8,000',dt:'Due in 9 days',dc:'d-ok',catId:'gaming'},
+    {id:17,name:'Roblox',sub:'Robux top-up',icon:'👾',bg:'#1A0A2E',amt:'₦2,500',dt:'Due today',dc:'d-over',catId:'gaming'},
+    {id:18,name:'Google Play',sub:'Games & apps credit',icon:'▶️',bg:'#0A1A0A',amt:'₦3,000',dt:'Due in 12 days',dc:'d-ok',catId:'gaming'},
+   ]},
+  {id:'broadband',name:'Broadband Internet',sub:'Spectranet, Smile, ipNX & more',icons:['🌐','📡','🛜'],bgs:['#10102E','#0A1E2A','#0E0E20'],
+   svcs:[
+    {id:20,name:'Spectranet',sub:'Home broadband',icon:'🌐',bg:'#10102E',amt:'₦9,500',dt:'Due in 4 days',dc:'d-ok',catId:'broadband'},
+    {id:21,name:'Smile Internet',sub:'4G home router',icon:'📡',bg:'#0A1E2A',amt:'₦12,000',dt:'Due in 11 days',dc:'d-ok',catId:'broadband'},
+    {id:22,name:'ipNX',sub:'Fibre broadband',icon:'🛜',bg:'#0E0E20',amt:'₦15,000',dt:'Due in 16 days',dc:'d-ok',catId:'broadband'},
+   ]},
+  {id:'health',name:'Health & Wellness',sub:'Hygeia, Reliance HMO, gyms & more',icons:['🏥','🏋️','💊'],bgs:['#10301A','#30101A','#10101E'],
+   svcs:[
+    {id:10,name:'Hygeia HMO',sub:'Family plan',icon:'🏥',bg:'#10301A',amt:'₦12,000',dt:'Due in 15 days',dc:'d-ok',catId:'health'},
+    {id:11,name:'Reliance HMO',sub:'Individual plan',icon:'💊',bg:'#10101E',amt:'₦8,000',dt:'Due in 12 days',dc:'d-ok',catId:'health'},
+   ]},
+  {id:'insurance',name:'Insurance',sub:'AIICO, AXA Mansard, Leadway & more',icons:['🛡️','🏠','🚗'],bgs:['#2E1E10','#102E1A','#10182E'],
+   svcs:[
+    {id:12,name:'AIICO Insurance',sub:'Life cover',icon:'🛡️',bg:'#2E1E10',amt:'₦4,200',dt:'Due in 20 days',dc:'d-ok',catId:'insurance'},
+    {id:13,name:'AXA Mansard',sub:'Home insurance',icon:'🏠',bg:'#102E1A',amt:'₦3,600',dt:'Due in 18 days',dc:'d-ok',catId:'insurance'},
+   ]},
+];
+
+const favs = new Set([4,7]);
+let curCat='All', srchQ='', checkoutFromCat='', currentSvc=null;
+let selectedAmtVal='';
+
+function allSvcs(){return cats.flatMap(c=>c.svcs);}
+
+window.renderRows = function(list) {
+  let filtered = list;
+  const map={Electricity:'electricity',Streaming:'streaming',Airtime:'airtime',Gaming:'gaming',Broadband:'broadband',Health:'health',Insurance:'insurance'};
+  if(curCat!=='All') filtered=filtered.filter(c=>c.id===map[curCat]);
+  if(srchQ) filtered=filtered.filter(c=>c.name.toLowerCase().includes(srchQ)||c.sub.toLowerCase().includes(srchQ)||c.svcs.some(s=>s.name.toLowerCase().includes(srchQ)));
+  const el=document.getElementById('catRows');
+  if(!filtered.length){el.innerHTML=`<div style="padding:40px 0;text-align:center;color:var(--text2);font-size:14px;">No results found</div>`;return;}
+  el.innerHTML=filtered.map(c=>`
+    <div class="cat-row" onclick="openCat('${c.id}')">
+      <div class="cat-row-info">
+        <div class="cat-row-title">${c.name}</div>
+        <div class="cat-row-sub">${c.sub}</div>
+      </div>
+      <div class="icon-stack">
+        ${c.icons.map((ic,i)=>`<div class="stack-icon" style="background:${c.bgs[i]||c.bgs[0]};">${ic}</div>`).join('')}
+      </div>
+    </div>`).join('');
+};
+
+window.filterCat = function(cat,el){
+  curCat=cat;
+  document.querySelectorAll('.cfpill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('catLabel').textContent=cat==='All'?'Just some of the bills we cover':cat;
+  window.renderRows(cats);
+};
+
+window.handleSearch = function(){
+  srchQ=document.getElementById('searchInput').value.toLowerCase();
+  window.renderRows(cats);
+};
+
+function svcCardHTML(s,showFav=true){
+  return `<div class="svc-card" onclick="openCheckout(${s.id},'${s.catId}')">
+    <div class="svc-icon" style="background:${s.bg};">${s.icon}</div>
+    <div class="svc-info"><div class="svc-name">${s.name}</div><div class="svc-sub">${s.sub}</div></div>
+    <div class="svc-right">
+      <div class="svc-amt">${s.amt}</div>
+      <span class="due-pill ${s.dc}">${s.dt}</span>
+      ${showFav?`<button class="fav-btn${favs.has(s.id)?' on':''}" onclick="toggleFav(event,${s.id},'${s.name}')">${favs.has(s.id)?'❤️':'🤍'}</button>`:''}
+    </div>
+  </div>`;
+}
+
+window.openCat = function(id){
+  const cat=cats.find(c=>c.id===id);
+  document.getElementById('detailTitle').textContent=cat.name;
+  document.getElementById('svcList').innerHTML=cat.svcs.map(s=>svcCardHTML(s)).join('');
+  showScreen('detailScreen');
+  document.getElementById('ctaWrap').style.display='none';
+};
+
+window.toggleFav = function(e,id,name){
+  e.stopPropagation();
+  if(favs.has(id)){favs.delete(id);showToast(`Removed ${name}`);}
+  else{favs.add(id);showToast(`❤️ ${name} saved!`);}
+  const b=e.currentTarget;
+  b.classList.toggle('on',favs.has(id));
+  b.textContent=favs.has(id)?'❤️':'🤍';
+};
+
+/* ── CHECKOUT CONFIG ── */
+const checkoutConfig={
+  electricity:{
+    fields:()=>`
+      <div class="co-section"><div class="co-label">Meter number</div><input class="co-input" id="field_meter" placeholder="Enter your meter number" type="text" inputmode="numeric"/></div>
+      <div class="co-section"><div class="co-label">Amount</div>
+        <div class="amt-grid" id="amtGrid">${['₦1,000','₦2,000','₦5,000','₦10,000','₦20,000','₦50,000'].map((a,i)=>`<div class="amt-opt${i===2?' selected':''}" onclick="selectAmt(this,'${a}')">${a}</div>`).join('')}</div>
+        <div class="custom-amt-wrap"><span>₦</span><input id="customAmt" placeholder="Custom amount" type="number" oninput="onCustomAmt()"/></div>
+      </div>`,
+    getDetail:()=>({label:'Meter no.',val:document.getElementById('field_meter')?.value||'01234567890'}),
+    getAmt:()=>getSelectedAmt()
+  },
+  streaming:{
+    fields:(s)=>`
+      <div class="co-section"><div class="co-label">Smart card / account number</div><input class="co-input" id="field_acct" placeholder="Enter account number" type="text"/></div>
+      <div class="co-section"><div class="co-label">Plan</div>
+        <select class="co-input" id="field_plan">${s.name==='Netflix'?'<option>Standard – ₦4,600/mo</option><option>Premium – ₦7,200/mo</option><option>Mobile – ₦2,800/mo</option>':s.name==='Spotify'?'<option>Premium – ₦2,100/mo</option><option>Duo – ₦2,800/mo</option><option>Family – ₦3,400/mo</option>':'<option>Mobile – ₦1,800/mo</option><option>SuperSport – ₦4,200/mo</option>'}</select>
+      </div>`,
+    getDetail:()=>({label:'Account no.',val:document.getElementById('field_acct')?.value||'0009182736'}),
+    getAmt:(s)=>{const p=document.getElementById('field_plan')?.value||'';const m=p.match(/₦([\d,]+)/);return m?'₦'+m[1]:s.amt;}
+  },
+  airtime:{
+    fields:(s)=>`
+      <div class="co-section"><div class="co-label">Phone number</div><input class="co-input" id="field_phone" placeholder="e.g. 0812 345 6789" type="tel"/></div>
+      <div class="co-section"><div class="co-label">Bundle</div>
+        <select class="co-input" id="field_bundle">${s.name==='MTN'?'<option>1GB – ₦500</option><option>5GB – ₦1,500</option><option>20GB – ₦5,000</option>':s.name==='Airtel'?'<option>1.5GB – ₦500</option><option>6GB – ₦1,500</option><option>12GB – ₦3,500</option>':s.name==='Glo'?'<option>2GB – ₦500</option><option>7.5GB – ₦2,000</option>':'<option>1GB – ₦400</option><option>3.5GB – ₦1,500</option>'}</select>
+      </div>`,
+    getDetail:()=>({label:'Phone no.',val:document.getElementById('field_phone')?.value||'0812 345 6789'}),
+    getAmt:(s)=>{const b=document.getElementById('field_bundle')?.value||'';const m=b.match(/₦([\d,]+)/);return m?'₦'+m[1]:s.amt;}
+  },
+  gaming:{
+    fields:(s)=>`
+      <div class="co-section"><div class="co-label">Voucher amount</div>
+        <div class="amt-grid">${['₦2,500','₦5,000','₦10,000','₦15,000','₦25,000','₦50,000'].map((a,i)=>`<div class="amt-opt${i===1?' selected':''}" onclick="selectAmt(this,'${a}')">${a}</div>`).join('')}</div>
+      </div>
+      <div class="co-section"><div class="co-label">Delivery email</div><input class="co-input" id="field_email" placeholder="your@email.com" type="email"/></div>`,
+    getDetail:()=>({label:'Delivery',val:document.getElementById('field_email')?.value||'<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="b8cdcbddcaf8ddd5d9d1d496dbd7d5">[email&#160;protected]</a>'}),
+    getAmt:()=>getSelectedAmt()
+  },
+  broadband:{
+    fields:(s)=>`
+      <div class="co-section"><div class="co-label">Account number</div><input class="co-input" id="field_acct" placeholder="Enter account number" type="text"/></div>
+      <div class="co-section"><div class="co-label">Plan</div>
+        <select class="co-input" id="field_plan">${s.name==='Spectranet'?'<option>Unlimited – ₦9,500/mo</option><option>30GB – ₦6,000/mo</option>':s.name==='Smile Internet'?'<option>50GB – ₦12,000/mo</option><option>100GB – ₦18,000/mo</option>':'<option>Fibre 30Mbps – ₦15,000/mo</option><option>Fibre 60Mbps – ₦25,000/mo</option>'}</select>
+      </div>`,
+    getDetail:()=>({label:'Account no.',val:document.getElementById('field_acct')?.value||'BBN-00192837'}),
+    getAmt:(s)=>{const p=document.getElementById('field_plan')?.value||'';const m=p.match(/₦([\d,]+)/);return m?'₦'+m[1]:s.amt;}
+  },
+  health:{
+    fields:(s)=>`
+      <div class="co-section"><div class="co-label">Member ID</div><input class="co-input" id="field_memid" placeholder="e.g. HYG-2024-00192" type="text"/></div>
+      <div class="co-section"><div class="co-label">Plan</div>
+        <select class="co-input" id="field_plan">${s.name==='Hygeia HMO'?'<option>Family – ₦12,000/mo</option><option>Individual – ₦5,500/mo</option>':'<option>Individual – ₦8,000/mo</option><option>Family – ₦14,000/mo</option>'}</select>
+      </div>`,
+    getDetail:()=>({label:'Member ID',val:document.getElementById('field_memid')?.value||'HYG-2024-00192'}),
+    getAmt:(s)=>{const p=document.getElementById('field_plan')?.value||'';const m=p.match(/₦([\d,]+)/);return m?'₦'+m[1]:s.amt;}
+  },
+  insurance:{
+    fields:(s)=>`
+      <div class="co-section"><div class="co-label">Policy number</div><input class="co-input" id="field_policy" placeholder="e.g. AIC-2024-01928" type="text"/></div>
+      <div class="co-section"><div class="co-label">Coverage plan</div>
+        <select class="co-input" id="field_plan">${s.name==='AIICO Insurance'?'<option>Term life – ₦4,200/mo</option><option>Whole life – ₦8,500/mo</option>':'<option>Home basic – ₦3,600/mo</option><option>Home premium – ₦6,800/mo</option>'}</select>
+      </div>`,
+    getDetail:()=>({label:'Policy no.',val:document.getElementById('field_policy')?.value||'AIC-2024-01928'}),
+    getAmt:(s)=>{const p=document.getElementById('field_plan')?.value||'';const m=p.match(/₦([\d,]+)/);return m?'₦'+m[1]:s.amt;}
+  }
+};
+
+window.selectAmt = function(el,val){
+  document.querySelectorAll('.amt-opt').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedAmtVal=val;
+  const cw=document.getElementById('customAmt');
+  if(cw) cw.value='';
+};
+window.onCustomAmt = function(){
+  const v=document.getElementById('customAmt').value;
+  if(v){document.querySelectorAll('.amt-opt').forEach(o=>o.classList.remove('selected'));selectedAmtVal='₦'+parseInt(v).toLocaleString();}
+};
+function getSelectedAmt(){
+  const ca=document.getElementById('customAmt');
+  if(ca&&ca.value) return '₦'+parseInt(ca.value).toLocaleString();
+  return selectedAmtVal||'₦5,000';
+}
+
+window.openCheckout = function(svcId,fromCat){
+  const svc=allSvcs().find(s=>s.id===svcId);
+  if(!svc) return;
+  currentSvc=svc; checkoutFromCat=fromCat;
+  document.getElementById('coIcon').style.background=svc.bg;
+  document.getElementById('coIcon').textContent=svc.icon;
+  document.getElementById('coName').textContent=svc.name;
+  document.getElementById('coSub').textContent=svc.sub;
+  const cfg=checkoutConfig[svc.catId]||checkoutConfig.streaming;
+  const fee=385;
+  document.getElementById('coBody').innerHTML=`
+    ${cfg.fields(svc)}
+    <div class="co-section"><div class="co-label">Payment method</div>
+      <div class="pay-methods">
+        <div class="pay-method selected" onclick="selectPM(this)"><div class="pm-icon">💳</div><div class="pm-info"><div class="pm-name">Sortd Wallet</div><div class="pm-detail">Balance: ₦24,500</div></div><div class="pm-radio"><div class="pm-radio-dot"></div></div></div>
+        <div class="pay-method" onclick="selectPM(this)"><div class="pm-icon">🏦</div><div class="pm-info"><div class="pm-name">Bank transfer</div><div class="pm-detail">Access Bank ••• 4521</div></div><div class="pm-radio"><div class="pm-radio-dot"></div></div></div>
+        <div class="pay-method" onclick="selectPM(this)"><div class="pm-icon">💳</div><div class="pm-info"><div class="pm-name">Debit card</div><div class="pm-detail">Visa ••• 8830</div></div><div class="pm-radio"><div class="pm-radio-dot"></div></div></div>
+      </div>
+    </div>
+    <div class="co-section"><div class="co-label">Order summary</div>
+      <div class="summary-box">
+        <div class="summary-row"><span class="summary-row-label">Service</span><span class="summary-row-val">${svc.name}</span></div>
+        <div class="summary-row"><span class="summary-row-label">Amount</span><span class="summary-row-val">${svc.amt}</span></div>
+        <div class="summary-row"><span class="summary-row-label">Processing fee</span><span class="summary-row-val">₦${fee.toLocaleString()}</span></div>
+        <div class="summary-row total"><span class="summary-row-label">Total</span><span class="summary-row-val" id="coTotal">—</span></div>
+      </div>
+    </div>
+    <button class="pay-btn" id="payBtn" onclick="confirmPayment()">Confirm & pay</button>
+    <div class="secure-note">🔒 Secured by Sortd · 256-bit encryption</div>
+    <div style="height:20px;"></div>`;
+  setTimeout(()=>{
+    const raw=(svc.amt||'₦0').replace(/[₦,]/g,'');
+    const total=parseInt(raw)+fee;
+    const el=document.getElementById('coTotal');
+    if(el) el.textContent='₦'+total.toLocaleString();
+  },50);
+  document.getElementById('coBackBtn').onclick=()=>{checkoutFromCat?openCat(checkoutFromCat):showHome();};
+  showScreen('checkoutScreen');
+  document.getElementById('ctaWrap').style.display='none';
+};
+
+window.selectPM = function(el){
+  document.querySelectorAll('.pay-method').forEach(m=>m.classList.remove('selected'));
+  el.classList.add('selected');
+};
+
+window.confirmPayment = async function(){
+  if(!currentSvc) return;
+  const btn=document.getElementById('payBtn');
+  btn.disabled=true;
+  btn.innerHTML='<span class="spinner"></span>Processing…';
+  const cfg=checkoutConfig[currentSvc.catId]||checkoutConfig.streaming;
+  const detail=cfg.getDetail(currentSvc);
+  const amt=cfg.getAmt(currentSvc);
+  const fee=385;
+  const amtRaw=(amt||currentSvc.amt||'₦0').replace(/[₦,]/g,'');
+  const total=parseInt(amtRaw)+fee;
+  const ref='SD'+Date.now().toString().slice(-8);
+
+  await new Promise(r=>setTimeout(r,1400));
+
+  await window.savePaymentToFirestore({
+    svcName:currentSvc.name, svcIcon:currentSvc.icon, svcBg:currentSvc.bg,
+    svcSub:currentSvc.sub, amount:amt||currentSvc.amt,
+    total:'₦'+total.toLocaleString(), fee:'₦'+fee.toLocaleString(),
+    ref, detail: detail.label+': '+(detail.val||'—'), category:currentSvc.catId
+  });
+
+  document.getElementById('successSub').textContent=`Your ${currentSvc.name} payment was processed and saved to your history.`;
+  document.getElementById('receiptBox').innerHTML=`
+    <div class="receipt-header">
+      <div class="receipt-svc-icon" style="background:${currentSvc.bg};">${currentSvc.icon}</div>
+      <div><div class="receipt-svc-name">${currentSvc.name}</div><div class="receipt-svc-sub">${currentSvc.sub}</div></div>
+    </div>
+    <div class="receipt-row"><span class="receipt-key">${detail.label}</span><span class="receipt-val">${detail.val||'—'}</span></div>
+    <div class="receipt-row"><span class="receipt-key">Amount</span><span class="receipt-val">${amt||currentSvc.amt}</span></div>
+    <div class="receipt-row"><span class="receipt-key">Fee</span><span class="receipt-val">₦${fee.toLocaleString()}</span></div>
+    <div class="receipt-row"><span class="receipt-key">Total charged</span><span class="receipt-val">₦${total.toLocaleString()}</span></div>
+    <div class="receipt-row"><span class="receipt-key">Status</span><span class="receipt-val green">✓ Successful</span></div>
+    <div class="receipt-row"><span class="receipt-key">Reference</span><span class="receipt-val">${ref}</span></div>
+    <div class="receipt-row"><span class="receipt-key">Date</span><span class="receipt-val">${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</span></div>`;
+  showScreen('successScreen');
+  document.getElementById('ctaWrap').style.display='none';
+};
+
+window.showHome = function(){
+  showScreen('homeScreen');
+  document.getElementById('ctaWrap').style.display='block';
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.querySelector('[data-nav=home]').classList.add('active');
+  window.renderRows(cats);
+};
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+window.navTo = function(tab,el){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(el) el.classList.add('active');
+  if(tab==='home'){showHome();}
+  else if(tab==='history'){showScreen('historyScreen');document.getElementById('ctaWrap').style.display='none';window.loadHistory();}
+  else if(tab==='saved'){
+    const list=allSvcs().filter(s=>favs.has(s.id));
+    document.getElementById('savedList').innerHTML=list.length?list.map(s=>svcCardHTML(s,false)).join(''):'<div style="padding:60px 20px;text-align:center;color:var(--text2);font-size:14px;">No saved services yet</div>';
+    showScreen('savedScreen');document.getElementById('ctaWrap').style.display='none';
+  }
+  else if(tab==='profile'){showScreen('profileScreen');document.getElementById('ctaWrap').style.display='none';}
+};
+
+window.openCat = function(id){
+  const cat=cats.find(c=>c.id===id);
+  document.getElementById('detailTitle').textContent=cat.name;
+  document.getElementById('svcList').innerHTML=cat.svcs.map(s=>svcCardHTML(s)).join('');
+  showScreen('detailScreen');
+  document.getElementById('ctaWrap').style.display='none';
+};
+
+window.showToast = function(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(window._tt);window._tt=setTimeout(()=>t.classList.remove('show'),2400);
+};
+</script>
+</body>
+</html>
